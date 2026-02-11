@@ -38,11 +38,10 @@
       padding: 12px;
       margin-bottom: 15px;
       border-radius: 6px;
-      border: none;
-      outline: none;
-      background: #020617;
-      color: #fff;
       border: 1px solid #334155;
+      background: #0f172a;
+      color: #fff;
+      outline: none;
     }
 
     button {
@@ -69,6 +68,7 @@
 </head>
 
 <body>
+
   <div class="box">
     <h1>999NA</h1>
 
@@ -81,16 +81,22 @@
   </div>
 
   <script>
-    const API = "https://backend-999na-production.onrender.com";
+    const backendURL = "https://backend-999na-production.onrender.com";
 
     async function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
+      const status = document.getElementById("status");
 
-      document.getElementById("status").innerText = "Conectando...";
+      if (!email || !password) {
+        status.innerText = "Preencha e-mail e senha ❌";
+        return;
+      }
+
+      status.innerText = "Entrando...";
 
       try {
-        const res = await fetch(API + "/auth/login", {
+        const res = await fetch(`${backendURL}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -98,16 +104,22 @@
 
         const data = await res.json();
 
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          document.getElementById("status").innerText = "Login OK ✅";
-        } else {
-          document.getElementById("status").innerText = "Erro no login ❌";
+        if (!res.ok) {
+          status.innerText = data.error || "Erro no login ❌";
+          return;
         }
-      } catch (e) {
-        document.getElementById("status").innerText = "Erro de conexão ❌";
+
+        localStorage.setItem("token", data.token);
+        status.innerText = "Login realizado com sucesso ✅";
+
+        // Futuro redirecionamento
+        // window.location.href = "dashboard.html";
+
+      } catch (err) {
+        status.innerText = "Erro ao conectar ao servidor ❌";
       }
     }
   </script>
+
 </body>
 </html>
